@@ -52,7 +52,9 @@ const Login = () => {
         }
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong.");
+      console.error("Registration Error:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Something went wrong. Please check the console for more details.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false); // Stop loading
     }
