@@ -8,7 +8,7 @@ export const AppContext = createContext();
 // AppContextProvider Component
 export const AppContextProvider = ({ children }) => {
   axios.defaults.withCredentials = true;
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
+  const backendURL = "https://password-reset-backend-91o4.onrender.com/";
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
 
