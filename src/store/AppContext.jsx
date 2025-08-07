@@ -10,7 +10,7 @@ export const AppContextProvider = ({ children }) => {
   axios.defaults.withCredentials = true;
 
   // Corrected backend URL: Removed trailing slash to avoid double slashes in requests
-  const backendURL = import.meta.env.VITE_BACKEND_URL || "https://password-reset-backend-91o4.onrender.com/";
+  const backendURL = import.meta.env.VITE_BACKEND_URL || "https://password-reset-backend-91o4.onrender.com";
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);

@@ -9,7 +9,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { backendURL, setIsLoggedIn, getUserData } = useContext(AppContext); // ✅ Fallback if AppContext is missing or backendURL is undefined
 
-  const baseURL = backendURL || "https://password-reset-backend-91o4.onrender.com/";
+  const baseURL = backendURL || "https://password-reset-backend-91o4.onrender.com";
 
   const [state, setState] = useState("Sign Up");
   const [name, setName] = useState("");
