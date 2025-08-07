@@ -3,4 +3,9 @@
   publish = "dist"
 
 [context.production.environment]
-  VITE_BACKEND_URL = "https://password-reset-backend-91o4.onrender.com/"
+  VITE_BACKEND_URL = "https://password-reset-backend-91o4.onrender.com"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
