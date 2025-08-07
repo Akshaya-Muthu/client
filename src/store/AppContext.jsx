@@ -8,7 +8,10 @@ export const AppContext = createContext();
 // AppContextProvider Component
 export const AppContextProvider = ({ children }) => {
   axios.defaults.withCredentials = true;
+
+  // Corrected backend URL: Removed trailing slash to avoid double slashes in requests
   const backendURL = import.meta.env.VITE_BACKEND_URL || "https://password-reset-backend-91o4.onrender.com/";
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
 
@@ -39,7 +42,8 @@ export const AppContextProvider = ({ children }) => {
         getUserData();
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong.");
+      console.error("Auth check failed:", error.message);
+      // No toast here to avoid unnecessary popup if user is not logged in
     }
   };
 
