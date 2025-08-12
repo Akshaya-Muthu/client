@@ -2,57 +2,57 @@ import axios from "axios";
 import { createContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-// Create the context
 export const AppContext = createContext();
 
-// AppContextProvider Component
 export const AppContextProvider = ({ children }) => {
   axios.defaults.withCredentials = true;
 
-  // Corrected backend URL: Removed trailing slash to avoid double slashes in requests
-  const backendURL = import.meta.env.VITE_BACKEND_URL || "https://password-reset-backend-91o4.onrender.com";
+  const backendURL =
+    import.meta.env.VITE_BACKEND_URL || "https://password-reset-backend-91o4.onrender.com";
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);  // new loading state
+  
+  const handleError = (error) => {
+    console.error("Error:", error.response || error);
+    toast.error(error.response?.data?.message || "An error occurred.");
+  };
 
-  // Function to get user data
   const getUserData = async () => {
     try {
-      const { data } = await axios.get(`${backendURL}/api/user/data`, {
-        withCredentials: true,
-      });
+      const { data } = await axios.get(`${backendURL}/api/user/data`);
       if (data.success) {
         setUserData(data.userData);
       } else {
-        toast.error(data.message);
+        handleError(data);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong.");
+      handleError(error);
     }
   };
 
-  // Function to check auth status
   const getAuthState = async () => {
     try {
-      const { data } = await axios.get(`${backendURL}/api/auth/is-auth`, {
-        withCredentials: true,
-      });
+      const { data } = await axios.get(`${backendURL}/api/auth/is-auth`);
       if (data.success) {
         setIsLoggedIn(true);
-        getUserData();
+        await getUserData();
+      } else {
+        setIsLoggedIn(false);
       }
     } catch (error) {
-      console.error("Auth check failed:", error.message);
-      // No toast here to avoid unnecessary popup if user is not logged in
+      console.warn("Auth check failed:", error.response?.data || error.message);
+      setIsLoggedIn(false);
+    } finally {
+      setIsLoading(false);  // set loading to false regardless of success or failure
     }
   };
 
-  // Automatically check auth state on mount
   useEffect(() => {
     getAuthState();
   }, []);
 
-  // Context value
   const value = {
     backendURL,
     isLoggedIn,
@@ -60,6 +60,7 @@ export const AppContextProvider = ({ children }) => {
     userData,
     setUserData,
     getUserData,
+    isLoading,  // provide loading state to context
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

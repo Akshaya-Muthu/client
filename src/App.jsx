@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastfy.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (

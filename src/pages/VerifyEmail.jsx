@@ -5,18 +5,19 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { AppContext } from "../store/AppContext";
 
+// Make sure axios sends cookies for auth
+axios.defaults.withCredentials = true;
+
 const VerifyEmail = () => {
   const navigate = useNavigate();
   const inputRefs = useRef([]);
   const [loading, setLoading] = useState(false);
 
-  axios.defaults.withCredentials = true;
+  const { backendURL, isLoggedIn, userData, getUserData } = useContext(AppContext);
 
-  const { backendURL, isLoggedIn, setIsLoggedIn, userData, getUserData } =
-    useContext(AppContext); // Fallback if backendURL not set in context
-
+  // Ensure we always have a backend URL
   const baseURL =
-    backendURL || "https://password-reset-backend-91o4.onrender.com";
+    backendURL || import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   const handleInput = (e, index) => {
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
@@ -51,7 +52,7 @@ const VerifyEmail = () => {
 
     try {
       setLoading(true);
-      const otpArray = inputRefs.current.map((input) => input.value);
+      const otpArray = inputRefs.current.map((input) => input.value.trim());
       const otp = otpArray.join("");
 
       if (otp.length !== 6 || otpArray.some((char) => !char)) {
@@ -60,18 +61,21 @@ const VerifyEmail = () => {
         return;
       }
 
-      const { data } = await axios.post(`${baseURL}/api/auth/verify-account`, {
-        otp,
-      });
+      const { data } = await axios.post(
+        `${baseURL}/api/auth/verify-account`,
+        { otp },
+        { withCredentials: true }
+      );
 
       if (data.success) {
-        toast.success(data.message);
-        await getUserData(); // fetch updated user info
+        toast.success(data.message || "Email verified successfully!");
+        await getUserData();
         navigate("/");
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Verification failed.");
       }
     } catch (error) {
+      console.error("Verify email error:", error.response || error);
       toast.error(error.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -86,29 +90,26 @@ const VerifyEmail = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-purple-400">
-      {" "}
       <img
         onClick={() => navigate("/")}
         src={assets.logo}
         alt="Logo"
         className="absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer"
       />
-      {" "}
+
       <form
         onSubmit={onSubmitHandler}
         className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm"
       >
-        {" "}
         <h1 className="text-white text-2xl font-semibold text-center mb-4">
-           Email Verify OTP {" "}
+          Email Verify OTP
         </h1>
-        {" "}
+
         <p className="text-center mb-6 text-indigo-300">
-          Enter 6-digit code sent to your email. {" "}
+          Enter 6-digit code sent to your email.
         </p>
-        {" "}
+
         <div className="flex justify-between mb-8" onPaste={handlePaste}>
-          {" "}
           {Array(6)
             .fill(0)
             .map((_, index) => (
@@ -123,18 +124,15 @@ const VerifyEmail = () => {
                 onKeyDown={(e) => handleKeyDown(e, index)}
               />
             ))}
-          {" "}
         </div>
-        {" "}
+
         <button
           className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full"
           disabled={loading}
         >
-          {loading ? "Verifying..." : "Verify Email"}{" "}
+          {loading ? "Verifying..." : "Verify Email"}
         </button>
-        {" "}
       </form>
-      {" "}
     </div>
   );
 };
